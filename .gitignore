@@ -1,0 +1,10 @@
+# Datasets — no se redistribuyen, se descargan de la fuente original
+*.pcap
+*.pcapng
+*.tgz
+*.zip
+*.spl
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

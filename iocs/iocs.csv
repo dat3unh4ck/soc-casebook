@@ -1,0 +1,26 @@
+case,ioc,type,context
+CASE-2016-0810-001,40.80.148.42,ipv4,IP atacante - escaneo Acunetix
+CASE-2016-0810-001,23.22.63.114,ipv4,IP atacante - fuerza bruta y web shell
+CASE-2016-0810-001,/joomla/agent.php,uri,Web shell
+CASE-2016-0810-001,imnotbatman.jpg,filename,Artefacto de defacement
+CASE-CD-TT-002,14.0.0.120,ipv4,IP atacante - CHINANET Shenzhen
+CASE-CD-TT-002,10.0.0.112,ipv4,Servidor Tomcat comprometido
+CASE-CD-TT-002,JXQOZY.war,filename,WAR malicioso con reverse shell
+CASE-CD-TT-002,gobuster/3.6,user_agent,Enumeracion de directorios
+CASE-KC7-JH-003,203.0.113.1,ipv4,IP atacante - acceso y reconocimiento
+CASE-KC7-JH-003,203.0.113.2,ipv4,IP atacante - reconocimiento
+CASE-KC7-JH-003,93.238.22.122,ipv4,C2 de Cobalt Strike puerto 50050
+CASE-KC7-JH-003,secure-health-access.com,domain,Descarga de herramienta y exfiltracion
+CASE-KC7-JH-003,emr-help.net,domain,Infraestructura adicional hallada por PassiveDNS
+CASE-KC7-JH-003,nothing-to-see-here.net,domain,Redireccion de malvertising
+CASE-KC7-JH-003,totally-legit-domain.com,domain,Redireccion de malvertising
+CASE-KC7-JH-003,raisinkanes.com,domain,Typosquatting de raisingcanes.com
+CASE-KC7-JH-003,freerainsingkanes.net,domain,Typosquatting
+CASE-KC7-JH-003,lockbyte_ransomer.exe,filename,Binario del ransomware
+CASE-KC7-JH-003,spread_ransomware.exe,filename,Ransomware renombrado en network share
+CASE-KC7-JH-003,cobaltstrike.exe,filename,Beacon de Cobalt Strike
+CASE-KC7-JH-003,patient_data_exporter.exe,filename,Herramienta de exfiltracion
+CASE-KC7-JH-003,Raisin_Kane_Promo_Offer.docx,filename,Dropper con macro maliciosa
+CASE-KC7-JH-003,We_Have_Your_Data_Pay_Up.txt,filename,Nota de rescate
+CASE-KC7-JH-003,97c348e95c8a8aeb8808f76434d73a92bbcb6b4586788365762b22624990b018,sha256,Nota de rescate
+CASE-KC7-JH-003,bd886046266b909a8ca5f19f16e5606baf73194a70632c81fdc44ef39ba29712,sha256,Documento malicioso
