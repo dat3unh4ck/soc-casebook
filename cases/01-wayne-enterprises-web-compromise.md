@@ -2,19 +2,18 @@
 
 | | |
 |---|---|
-| **ID** | CASE-2016-0810-001 |
-| **Severidad** | Crítica (P1) |
-| **Estado** | Cerrado — Verdadero Positivo |
-| **Plataforma** | Splunk Enterprise (SPL) |
-| **Dataset** | Splunk BOTS v1 — 955.807 eventos, 20 sourcetypes, 10–24 ago 2016 |
-| **Frameworks** | MITRE ATT&CK v15 · NIST SP 800-61 Rev. 2 |
+| ID | CASE-2016-0810-001 |
+| Severidad | Crítica (P1) |
+| Estado | Cerrado — Verdadero Positivo |
+| Plataforma | Splunk Enterprise (SPL) |
+| Dataset | Splunk BOTS v1 — 955.807 eventos, 20 sourcetypes, 10–24 ago 2016 |
+| Frameworks | MITRE ATT&CK v15 · NIST SP 800-61 Rev. 2 |
 
-Ataque coordinado multifase del grupo hacktivista *po1s0n1vy* contra la infraestructura
-web de Wayne Enterprises: escaneo automatizado, fuerza bruta, web shell y defacement.
+Ataque coordinado multifase del grupo hacktivista *po1s0n1vy* contra la
+infraestructura web de Wayne Enterprises: escaneo automatizado, fuerza bruta, web
+shell y defacement.
 
-📺 [Vídeo del caso en @DateUnH4ck](https://www.youtube.com/watch?v=mDertxflayg)
-
----
+El caso lo explico en vídeo en [@DateUnH4ck](https://www.youtube.com/watch?v=mDertxflayg).
 
 ## 1. Alerta recibida
 
@@ -38,7 +37,7 @@ index=botsv1 earliest=0 sourcetype=suricata alert.signature="ET WEB_SERVER*"
 | stats count by src_ip | sort -count
 ```
 
-**Decisión:** Verdadero Positivo. Prioridad P1. Se escala a investigación completa.
+Decido verdadero positivo, prioridad P1, y lo escalo a investigación completa.
 
 ## 3. Análisis de logs
 
@@ -59,7 +58,7 @@ index=botsv1 earliest=0 sourcetype=suricata src_ip="40.80.148.42"
 | eval fin=strftime(fin,"%Y-%m-%d %H:%M:%S") | sort inicio
 ```
 
-Ataque concentrado entre las 23:36 y las 00:21 del 10 de agosto. **50 firmas únicas**:
+Ataque concentrado entre las 23:36 y las 00:21 del 10 de agosto. 50 firmas únicas:
 Acunetix, Shellshock, XSS, SQLi, ejecución de comandos y directory traversal.
 
 ### 3.3 Servidor web (IIS)
@@ -69,7 +68,7 @@ index=botsv1 earliest=0 sourcetype=iis c_ip="40.80.148.42"
 | stats count by cs_uri_stem | sort -count | head 20
 ```
 
-Servidor Joomla. El componente de búsqueda recibe **16.871 peticiones** (SQLi), el panel
+Servidor Joomla. El componente de búsqueda recibe 16.871 peticiones (SQLi), el panel
 de administración 35 accesos, y aparece una imagen `imnotbatman.jpg`.
 
 ```spl
@@ -87,8 +86,8 @@ index=botsv1 earliest=0 sourcetype=iis c_ip="40.80.148.42"
 | stats count by cs_method sc_status | sort -count
 ```
 
-**Tres POST con código 303.** En Joomla, un 303 tras un POST de login es una redirección
-post-autenticación: confirma el acceso exitoso. El atacante navega después a
+Tres POST con código 303. En Joomla, un 303 tras un POST de login es una redirección
+post-autenticación: confirma que el acceso funcionó. El atacante navega después a
 `com_installer`, el instalador de extensiones, que es por donde entra el web shell.
 
 ### 3.5 Fuerza bruta
@@ -99,33 +98,36 @@ index=botsv1 earliest=0 sourcetype=stream:http dest_ip="192.168.250.70"
 | stats count by src_ip
 ```
 
-Aparece una **segunda IP**: `23.22.63.114`, con **412 intentos** contra el usuario `admin`
-usando un diccionario estándar. La última contraseña probada es `rock` — la que funcionó.
+Aparece una segunda IP, `23.22.63.114`, con 412 intentos contra el usuario `admin`
+usando un diccionario estándar. La última contraseña probada es `rock`: la que
+funcionó.
 
 ### 3.6 Web shell — agent.php
 
-`23.22.63.114` accede **193 veces** a `/joomla/agent.php`, el web shell subido por el
-atacante. El primer acceso se produce a las 23:55:22, **7 minutos después de la subida**.
-Son peticiones GET sin query string: un canal de control deliberadamente discreto.
+`23.22.63.114` accede 193 veces a `/joomla/agent.php`, el web shell que subió el
+atacante. El primer acceso es a las 23:55:22, siete minutos después de la subida. Son
+peticiones GET sin query string: un canal de control deliberadamente discreto.
 
 ### 3.7 Defacement
 
-La imagen `imnotbatman.jpg` se sirve 13 veces. Declaración hacktivista, fase final del ataque.
+La imagen `imnotbatman.jpg` se sirve 13 veces. Declaración hacktivista, fase final del
+ataque.
 
 ## 4. Pivoteo entre fuentes
 
 ### 4.1 Firewall Fortigate — el hallazgo que define el caso
 
-El IPS detectó **12.860 eventos maliciosos y permitió 12.851**. Estaba en modo solo
-detección. Entre lo que detectó y dejó pasar está una **reverse shell**
+El IPS detectó 12.860 eventos maliciosos y permitió 12.851. Estaba en modo solo
+detección. Entre lo que detectó y dejó pasar hay una reverse shell
 (`MS.Windows.CMD.Reverse.Shell`) desde `23.22.63.114`.
 
 La defensa funcionó: vio el ataque entero. Lo que falló fue la configuración.
 
 ### 4.2 Sysmon — brecha de visibilidad
 
-Sysmon no registró la creación de `agent.php`. El web shell se escribió en el directorio
-web sin dejar rastro en el endpoint: la cobertura de Sysmon no incluía esas rutas.
+Sysmon no registró la creación de `agent.php`. El web shell se escribió en el
+directorio web sin dejar rastro en el endpoint: la cobertura de Sysmon no incluía esas
+rutas.
 
 ## 5. Mapeo MITRE ATT&CK
 
@@ -141,7 +143,7 @@ web sin dejar rastro en el endpoint: la cobertura de Sysmon no incluía esas rut
 
 ## 6. Veredicto
 
-**Compromiso confirmado.** Cadena completa:
+Compromiso confirmado. Cadena completa:
 
 ```
 Escaneo Acunetix (40.80.148.42)
@@ -161,7 +163,7 @@ actividad administrativa entre las 23:47 y las 23:55 marca el traspaso entre amb
 2. Cambiar credenciales y revocar todas las sesiones activas.
 3. Eliminar `agent.php` y la extensión maliciosa instalada.
 4. Restaurar desde copia de seguridad previa al 10 de agosto.
-5. **Pasar el IPS de modo detección a modo prevención.**
+5. Pasar el IPS de modo detección a modo prevención.
 6. Implementar MFA, WAF y rate-limiting en el panel de administración.
 7. Ampliar la cobertura de Sysmon a los directorios web.
 
@@ -169,12 +171,12 @@ actividad administrativa entre las 23:47 y las 23:55 marca el traspaso entre amb
 
 El fallo no fue de detección, fue de configuración y de cobertura:
 
-- **IPS en modo detección:** 12.851 eventos maliciosos permitidos, reverse shell incluida.
+- IPS en modo detección: 12.851 eventos maliciosos permitidos, reverse shell incluida.
   Toda la telemetría estaba ahí; nadie la convirtió en bloqueo.
-- **Contraseña débil:** `rock` cayó en 412 intentos, cuestión de segundos.
-- **Sin anti-fuerza bruta:** 412 intentos consecutivos sin bloqueo ni retardo.
-- **Sysmon incompleto:** el artefacto más importante del incidente —el web shell— no
-  generó ningún evento de endpoint.
+- Contraseña débil: `rock` cayó en 412 intentos, cuestión de segundos.
+- Sin anti-fuerza bruta: 412 intentos seguidos sin bloqueo ni retardo.
+- Sysmon incompleto: el artefacto más importante del incidente —el web shell— no generó
+  ningún evento de endpoint.
 
 ## 9. IOCs
 
@@ -190,6 +192,6 @@ El fallo no fue de detección, fue de configuración y de cobertura:
 
 ## Reproducir el caso
 
-Dataset: **Splunk BOTS v1** (gratuito). El montaje completo del laboratorio —instalación de
+Dataset: Splunk BOTS v1 (gratuito). El montaje completo del laboratorio —instalación de
 Splunk, los 7 add-ons necesarios y la carga del dataset— está en
 [`../docs/lab-setup.md`](../docs/lab-setup.md).

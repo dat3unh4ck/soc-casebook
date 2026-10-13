@@ -1,12 +1,12 @@
 # Consultas SPL — Splunk
 
 Las del [caso 01](../cases/01-wayne-enterprises-web-compromise.md), reescritas como
-patrones reutilizables. Sustituye `index=botsv1` por tu índice.
+patrones reutilizables. Cambiar `index=botsv1` por el índice propio.
 
 ## Reconocimiento del entorno
 
-Qué fuentes de datos hay y cuánto aporta cada una. Primera consulta ante un índice
-desconocido: dice qué visibilidad tienes realmente.
+Qué fuentes de datos hay y cuánto aporta cada una. Es la primera consulta ante un índice
+desconocido: dice qué visibilidad hay realmente.
 
 ```spl
 index=botsv1 earliest=0
@@ -31,8 +31,8 @@ index=botsv1 earliest=0 sourcetype=suricata "Acunetix"
 
 ## Timeline de un atacante
 
-Patrón clave de triaje: primera y última aparición de cada firma para una IP. Revela
-la secuencia del ataque y su duración.
+Patrón clave de triaje: primera y última aparición de cada firma para una IP. Revela la
+secuencia del ataque y su duración.
 
 ```spl
 index=botsv1 earliest=0 sourcetype=suricata src_ip="40.80.148.42"
@@ -44,15 +44,15 @@ index=botsv1 earliest=0 sourcetype=suricata src_ip="40.80.148.42"
 
 ## Análisis de servidor web (IIS)
 
-Rutas más golpeadas por una IP — delata el objetivo real:
+Rutas más golpeadas por una IP, que delatan el objetivo real:
 
 ```spl
 index=botsv1 earliest=0 sourcetype=iis c_ip="40.80.148.42"
 | stats count by cs_uri_stem | sort -count | head 20
 ```
 
-Distribución de códigos de respuesta. Muchos 500 indican explotación activa; los 200
-en rutas sensibles indican éxito:
+Distribución de códigos de respuesta. Muchos 500 indican explotación activa; los 200 en
+rutas sensibles indican éxito:
 
 ```spl
 index=botsv1 earliest=0 sourcetype=iis c_ip="40.80.148.42"
@@ -67,14 +67,14 @@ index=botsv1 earliest=0 sourcetype=iis c_ip="40.80.148.42"
 | stats count by cs_method sc_status | sort -count
 ```
 
-> Un `POST` con `303` en Joomla es una redirección post-autenticación: login correcto.
-> El código de estado concreto depende de la aplicación — conviene verificarlo antes
-> de dar por buena la conclusión.
+Un `POST` con `303` en Joomla es una redirección post-autenticación: login correcto. El
+código de estado concreto depende de la aplicación, así que conviene verificarlo antes de
+dar por buena la conclusión.
 
 ## Fuerza bruta sobre formularios web
 
-Intentos de login capturados en el tráfico HTTP. Útil cuando la aplicación no registra
-los fallos en sus propios logs:
+Intentos de login capturados en el tráfico HTTP. Útil cuando la aplicación no registra los
+fallos en sus propios logs:
 
 ```spl
 index=botsv1 earliest=0 sourcetype=stream:http dest_ip="192.168.250.70"
@@ -84,8 +84,8 @@ index=botsv1 earliest=0 sourcetype=stream:http dest_ip="192.168.250.70"
 
 ## Detección de web shell
 
-Un web shell suele ser una ruta poco frecuente con muchísimos accesos de una sola IP y
-sin query string. Este patrón lo saca a la luz:
+Un web shell suele ser una ruta poco frecuente con muchísimos accesos de una sola IP y sin
+query string. Este patrón lo saca a la luz:
 
 ```spl
 index=botsv1 earliest=0 sourcetype=iis
@@ -97,7 +97,7 @@ index=botsv1 earliest=0 sourcetype=iis
 ## Verificación del IPS
 
 La consulta que destapó el caso 01: comprobar qué proporción de lo detectado se está
-**permitiendo** de verdad.
+permitiendo de verdad.
 
 ```spl
 index=botsv1 earliest=0 sourcetype=fortigate_utm

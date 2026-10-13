@@ -26,7 +26,7 @@ FileCreationEvents
 
 ## Localizar el origen
 
-La nota de rescate suele estar en muchas máquinas, pero el **punto de operación** es
+La nota de rescate suele estar en muchas máquinas, pero el punto de operación es
 donde aparece primero o de forma aislada:
 
 ```kusto
@@ -63,7 +63,7 @@ PassiveDns
 | where domain == "secure-health-access.com"
 ```
 
-Y después, qué **otros** dominios comparten esas IPs:
+Y después, qué otros dominios comparten esas IPs:
 
 ```kusto
 PassiveDns
